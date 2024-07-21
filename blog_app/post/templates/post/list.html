@@ -1,0 +1,25 @@
+{% extends 'post/base.html' %}
+{% block title %}all posts{% endblock %}
+{% block body %}
+    <h2>Posts</h2>
+    {% for post in page_obj %}
+        <p>post title <a href="{{ post.get_absolute_url }}">{{ post.title }}</a></p>
+        <p>post author {{ post.author.username }}</p>
+        <p>post published date {{ post.published }}</p>
+    {% endfor %}
+    <div class="pagination">
+        <span class="step-link">
+            {% if page_obj.has_previous %}
+                <a href="?page=1">&laquo; first</a>
+                <a href="?page={{ page_obj.previous_page_number }}">Previous</a>
+            {% endif %}
+            <span>
+                Page {{ page_obj.page }} of {{ page_obj.paginator.num_pages }}.
+            </span>
+            {% if page_obj.has_next %}
+                <a href="?page={{ page_obj.next_page_number }}">Next</a>
+                <a href="?page={{ page_obj.paginator.num_pages }}">last &raquo;</a>
+            {% endif %}
+        </span>
+    </div>
+{% endblock %}

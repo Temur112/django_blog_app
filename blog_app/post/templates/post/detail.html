@@ -1,0 +1,24 @@
+{% extends 'post/base.html' %}
+{% block title %} detail {% endblock %}
+{% block body %}
+    {{  post.title }}<br>
+    {{ post.body }}
+    <br>
+    <a href="{% url 'blog_app:post_share' post_id=post.pk %}">Share</a>
+    <br>
+    {% with comment_list.count as total_comments %}
+        <h2>{{ total_comments }} comment{{ total_comments | pluralize }}</h2>
+    {% endwith %}
+    {% for comment in comment_list %}
+        <div class="comment">
+            <p class="info">
+                Comment {{ forloop.counter }} by {{ comment.name }}
+                {{ comment.created }}
+            </p>
+            {{ comment.body | linebreaks }}
+        </div>
+    {% empty %}
+        <p>There is no comments yet</p>
+    {% endfor %}
+    {% include 'post/include/comment_form.html' with form=comment_form %}
+{% endblock %}
