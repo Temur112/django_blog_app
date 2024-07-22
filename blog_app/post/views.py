@@ -4,6 +4,7 @@ from django.views.decorators.http import require_POST
 from django.views.generic import ListView, DetailView
 
 from post.models import Post
+from taggit.models import Tag
 
 from .forms import EmailPostForm, CommentForm
 
@@ -13,7 +14,26 @@ class PostListView(ListView):
     queryset = Post.published_.all().prefetch_related('author')
     context_object_name = 'posts'
     template_name = 'post/list.html'
-    paginate_by = 1
+    paginate_by = 3
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+
+        tag_slug = self.kwargs.get('tag_slug')
+        print(tag_slug)
+        if tag_slug is not None:
+            tag = get_object_or_404(Tag, slug=tag_slug)
+            queryset = Post.published_.filter(tags__in=[tag])
+        return queryset
+
+    def get_context_data(self, **kwargs):
+        tag = None
+        context = super().get_context_data(**kwargs)
+
+        if self.request.GET.get('tag_slug') is not None:
+            tag = get_object_or_404(Tag, slug=self.kwargs.get('tag_slug'))
+            context['tag'] = tag
+        return context
 
 
 class PostDetailView(DetailView):
@@ -35,6 +55,8 @@ class PostDetailView(DetailView):
         context = super().get_context_data(**kwargs)
         context['comment_form'] = CommentForm()
         context['comment_list'] = self.object.comments.filter(active=True)
+
+
         return context
 
 

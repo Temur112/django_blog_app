@@ -1,10 +1,21 @@
 {% extends 'post/base.html' %}
 {% block title %}all posts{% endblock %}
 {% block body %}
-    <h2>Posts</h2>
+    {% if tag %}
+        <h2>Tagged with {{ tag.name }}</h2>
+    {% else %}
+        <h2>Posts</h2>
+    {% endif %}
+
     {% for post in page_obj %}
         <p>post title <a href="{{ post.get_absolute_url }}">{{ post.title }}</a></p>
         <p>post author {{ post.author.username }}</p>
+        <p>
+        Tags:
+        {% for tag in post.tags.all %}
+             <a href="{% url 'blog_app:post_list_by_tag' tag_slug=tag.slug %}">{{ tag.name }}</a>
+        {% endfor %}
+        </p>
         <p>post published date {{ post.published }}</p>
     {% endfor %}
     <div class="pagination">
