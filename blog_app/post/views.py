@@ -1,4 +1,5 @@
 from django.core.mail import send_mail
+from django.db.models import Count
 from django.shortcuts import render, get_object_or_404
 from django.views.decorators.http import require_POST
 from django.views.generic import ListView, DetailView
@@ -27,7 +28,7 @@ class PostListView(ListView):
         return queryset
 
     def get_context_data(self, **kwargs):
-        tag = None
+        # tag = None
         context = super().get_context_data(**kwargs)
 
         if self.request.GET.get('tag_slug') is not None:
@@ -51,12 +52,14 @@ class PostDetailView(DetailView):
         obj = get_object_or_404(queryset, published__year=year, published__month=month, published__day=day, slug=slug)
         return obj
 
-    def get_context_data(self,**kwargs):
+    def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        tag_ids_list = self.object.tags.values_list('id', flat=True)
+        similar_posts = Post.published_.all().filter(tags__in=tag_ids_list).exclude(id=self.object.pk)
+        similar_posts = similar_posts.annotate(same_tags=Count('tags')).order_by('-same_tags', '-published')[:4]
         context['comment_form'] = CommentForm()
         context['comment_list'] = self.object.comments.filter(active=True)
-
-
+        context['similar_posts'] = similar_posts
         return context
 
 
@@ -94,10 +97,8 @@ def create_comment(request, post_id):
 
     form = CommentForm(request.POST)
     if form.is_valid():
-        comment= form.save(commit=False)
+        comment = form.save(commit=False)
         comment.post = post
         comment.save()
 
     return render(request, 'post/comment.html', {'post': post, 'form': form, 'comment': comment})
-
-

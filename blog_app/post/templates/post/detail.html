@@ -1,10 +1,17 @@
 {% extends 'post/base.html' %}
+{% load blog_tags %}
 {% block title %} detail {% endblock %}
 {% block body %}
     {{  post.title }}<br>
-    {{ post.body }}
+    {{ post.body | markdown}}
     <br>
     <a href="{% url 'blog_app:post_share' post_id=post.pk %}">Share</a>
+    <h2>Similar posts</h2>
+    {% for post in similar_posts %}
+        <p><a href="{{ post.get_absolute_url }}">{{ post.title }}</a></p>
+    {% empty %}
+        No similar posts yet
+    {% endfor %}
     <br>
     {% with comment_list.count as total_comments %}
         <h2>{{ total_comments }} comment{{ total_comments | pluralize }}</h2>

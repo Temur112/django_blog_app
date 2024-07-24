@@ -27,7 +27,7 @@ SECRET_KEY = 'django-insecure-o6anel(76^t=6ap4k2h&(8@9w*5=b@_2+!^@4m@gq76*-s4(27
 DEBUG = True
 
 ALLOWED_HOSTS = []
-
+SITE_ID = 1
 
 # Application definition
 
@@ -39,7 +39,9 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'post',
-    'taggit'
+    'taggit',
+    'django.contrib.sites',
+    'django.contrib.sitemaps',
 ]
 
 MIDDLEWARE = [
